@@ -580,8 +580,7 @@ const SplitwisePage = ({ formatCurrency, theme, toggleTheme }) => {
         }
       `}</style>
 
-      {/* Main Content Frame - Centered with max-width limit */}
-      <main style={{ background: 'var(--bg)', padding: '40px 48px', maxWidth: '1200px', margin: '0 auto' }}>
+      <main className="splitwise-main">
         
         {/* Top Back Link & Header Row aligned flush above Net Balance */}
         <div className="mb-9">
