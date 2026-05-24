@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>De-expense • Security & PWA Hardening Suite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --card-bg: rgba(22, 22, 29, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --primary: #0071e3;
+      --primary-glow: rgba(0, 113, 227, 0.15);
+      --success: #30d158;
+      --success-glow: rgba(48, 209, 88, 0.15);
+      --purple: #a350f0;
+      --purple-glow: rgba(163, 80, 240, 0.15);
+      --danger: #ff453a;
+      --danger-glow: rgba(255, 69, 58, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(163, 80, 240, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 113, 227, 0.07) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px 80px 20px;
+    }
+
+    /* 🏷️ Top Header */
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 72px;
+      height: 72px;
+      border-radius: 22px;
+      background: radial-gradient(circle at top left, var(--purple), var(--primary));
+      box-shadow: 0 12px 30px rgba(0, 113, 227, 0.3);
+      margin-bottom: 20px;
+    }
+
+    .logo-svg {
+      width: 36px;
+      height: 36px;
+      fill: #fff;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      margin: 0 0 10px 0;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #fff 30%, var(--text-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 500;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* 📊 Grid Cards */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 992px) {
+      .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-large {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 992px) {
+      .card-large {
+        grid-column: span 1;
+      }
+    }
+
+    .card-full {
+      grid-column: span 3;
+    }
+
+    @media (max-width: 992px) {
+      .card-full {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .card-full {
+        grid-column: span 1;
+      }
+    }
+
+    .icon-badge {
+      display: inline-flex;
+      padding: 12px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+
+    .badge-purple {
+      background: var(--purple-glow);
+      color: var(--purple);
+    }
+
+    .badge-primary {
+      background: var(--primary-glow);
+      color: var(--primary);
+    }
+
+    .badge-success {
+      background: var(--success-glow);
+      color: var(--success);
+    }
+
+    .badge-danger {
+      background: var(--danger-glow);
+      color: var(--danger);
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0 0 12px 0;
+      letter-spacing: -0.02em;
+    }
+
+    /* 🛡️ Security Audit Checklist */
+    .audit-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .audit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .audit-item:last-child {
+      border-bottom: none;
+    }
+
+    .audit-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .status-checked {
+      background: var(--success-glow);
+      color: var(--success);
+    }
+
+    .status-warning {
+      background: var(--purple-glow);
+      color: var(--purple);
+    }
+
+    .status-text {
+      flex: 1;
+    }
+
+    .status-text h4 {
+      margin: 0 0 4px 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .status-text p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* 💻 Live Interactive Escaping Sandbox */
+    .sandbox {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 18px;
+      padding: 24px;
+      margin-top: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: #121217;
+      border: 1px solid var(--card-border);
+      padding: 14px 18px;
+      border-radius: 12px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .sandbox-outputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 576px) {
+      .sandbox-outputs {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .output-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .output-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .output-box {
+      font-family: monospace;
+      font-size: 0.9rem;
+      word-break: break-all;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 12px;
+      border-radius: 8px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+
+    .output-render {
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      padding: 10px 12px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      color: var(--danger);
+    }
+
+    .output-safe {
+      color: var(--success);
+    }
+
+    /* 🧩 Code Snippet blocks */
+    pre {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.85rem;
+      overflow-x: auto;
+      margin: 0;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+      color: #38bdf8;
+    }
+
+    /* 🏷️ Status Badges */
+    .pwa-step-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      background: var(--primary-glow);
+      color: var(--primary);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Header Block -->
+    <header>
+      <div class="logo-container">
+        <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/>
+        </svg>
+      </div>
+      <h1>Security & PWA Hardening Suite</h1>
+      <p class="subtitle">A detailed overview of Stored XSS defense, CSP headers, Apple-compliant bottom tab navigation, and local-first Progressive Web App capabilities.</p>
+    </header>
+
+    <div class="grid-container">
+
+      <!-- 💡 CARD 1: Executive Summary -->
+      <div class="card card-full">
+        <div class="icon-badge badge-success">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <h3 class="card-title">Project Executive Summary</h3>
+        <p style="margin: 0 0 20px 0; color: var(--text-muted);">
+          We have performed a full security auditing and environments layout refactoring for <strong>De-expense Tracker</strong>. By patching dynamic rendering loops against Stored XSS, configuring server-free Content Security Policy meta directives, structuring local environment boilerplate, and crafting an Apple-compliant bottom-navigation layout, the platform operates as a secure, fast, and installable <strong>Progressive Web App (PWA)</strong>.
+        </p>
+      </div>
+
+      <!-- 🛡️ CARD 2: Security Checklist Audits -->
+      <div class="card card-large">
+        <div class="icon-badge badge-purple">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        </div>
+        <h3 class="card-title">12-Point Security Checklist Compliance</h3>
+        
+        <div class="audit-list">
+          <div class="audit-item">
+            <div class="audit-status status-checked">✓</div>
+            <div class="status-text">
+              <h4>1. Secrets & Environment Isolation</h4>
+              <p>Boilerplate setup in <code>.env.example</code> with Vite prefixed <code>VITE_</code> tokens; zero hardcoded frontend keys.</p>
+            </div>
+          </div>
+          <div class="audit-item">
+            <div class="audit-status status-checked">✓</div>
+            <div class="status-text">
+              <h4>2. Cross-Site Scripting (XSS) Prevention</h4>
+              <p>Added dynamic text-encoding <code>escapeHTML</code> helper; escapes user category strings rendered via <code>dangerouslySetInnerHTML</code>.</p>
+            </div>
+          </div>
+          <div class="audit-item">
+            <div class="audit-status status-checked">✓</div>
+            <div class="status-text">
+              <h4>3. Content Security Policy (CSP)</h4>
+              <p>Strict header integration whitelisting Google Font CDNs (<code>fonts.googleapis.com</code> &amp; <code>fonts.gstatic.com</code>) under client boundaries.</p>
+            </div>
+          </div>
+          <div class="audit-item">
+            <div class="audit-status status-checked">✓</div>
+            <div class="status-text">
+              <h4>4. Git Credentials Protection</h4>
+              <p>Structured global <code>.gitignore</code> blocking IDE garbage, localized variables <code>.env*</code>, and production bundles.</p>
+            </div>
+          </div>
+          <div class="audit-item">
+            <div class="audit-status status-warning">i</div>
+            <div class="status-text">
+              <h4>5. Backend Security Metrics (Auth, SQL, Rate Limits, Headers)</h4>
+              <p>Analyzed as Not Applicable (N/A) due to client-side localStorage sandbox. Security is maintained by browser sandbox boundaries.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎮 CARD 3: Interactive Sandbox -->
+      <div class="card">
+        <div class="icon-badge badge-primary">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12" y2="18"></line></svg>
+        </div>
+        <h3 class="card-title">XSS Prevention Simulator</h3>
+        <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">
+          Type malicious HTML code (like <code>&lt;img src=x onerror=alert()&gt;</code>) below to see the sandbox escape it instantly!
+        </p>
+
+        <div class="sandbox">
+          <div class="input-group">
+            <label for="xss-input">Category/Insight Input</label>
+            <input type="text" id="xss-input" value="Food &lt;img src=x onerror=alert('Hacked')&gt;">
+          </div>
+          
+          <div class="sandbox-outputs">
+            <div class="output-card">
+              <div class="output-title">Raw Escaped String</div>
+              <div class="output-box" id="escaped-raw"></div>
+            </div>
+            <div class="output-card">
+              <div class="output-title">Rendered Result</div>
+              <div class="output-render" id="rendered-output"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📱 CARD 4: Mobile UI/UX Bottom Tab -->
+      <div class="card card-large">
+        <div class="icon-badge badge-primary">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12" y2="18"></line></svg>
+        </div>
+        <h3 class="card-title">Apple-style Mobile UI/UX & Navigation</h3>
+        <p style="margin: 0 0 20px 0; color: var(--text-muted);">
+          To give mobile users a high-fidelity native app feel, we replaced the cluttered desktop header items with a custom <strong>Bottom Navigation Tab Bar</strong> using Framer Motion.
+        </p>
+        <ul style="margin: 0 0 20px 0; padding-left: 20px; color: var(--text-muted); font-size: 0.95rem;">
+          <li style="margin-bottom: 8px;"><strong>Bottom Tab Navigation:</strong> Fixed bottom bar with blur backdrop containing Home, Explorer, Splitwise, Reports, and History.</li>
+          <li style="margin-bottom: 8px;"><strong>Active Spring Indicator:</strong> High-end animated glowing bubble under the active page icon.</li>
+          <li style="margin-bottom: 8px;"><strong>Apple Notch Support:</strong> Viewport rules expanded via <code>viewport-fit=cover</code> so content flows edge-to-edge.</li>
+          <li style="margin-bottom: 8px;"><strong>Header Simplification:</strong> Hidden verbose desktop links, keeping only essential settings, reset, and dark mode toggles at the top.</li>
+        </ul>
+        <pre><code>/* Mobile Bottom Bar Overlay CSS */
+.bottom-nav-bar {
+  position: fixed;
+  bottom: 0;
+  height: 68px;
+  background: var(--card-bg);
+  backdrop-filter: blur(24px);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}</code></pre>
+      </div>
+
+      <!-- ⚙️ CARD 5: PWA Capabilities -->
+      <div class="card">
+        <div class="icon-badge badge-success">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12" y2="20"></line></svg>
+        </div>
+        <h3 class="card-title">Progressive Web App Suite</h3>
+        <p style="margin: 0 0 20px 0; color: var(--text-muted); font-size: 0.95rem;">
+          De-expense is now structured as an installable PWA ready for mobile home screen launching.
+        </p>
+        
+        <div>
+          <span class="pwa-step-badge">Manifest</span>
+          <p style="margin: 0 0 16px 0; font-size: 0.85rem; color: var(--text-muted);">
+            <code>manifest.json</code> defines standalone rendering mode, portrait orientations, home application tags, branding, and color themes.
+          </p>
+          
+          <span class="pwa-step-badge">Service Worker</span>
+          <p style="margin: 0 0 16px 0; font-size: 0.85rem; color: var(--text-muted);">
+            Active background caching worker (<code>sw.js</code>) registers automatically in production, serving files offline.
+          </p>
+          
+          <span class="pwa-step-badge">Offline Ready</span>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">
+            No network dependency for local wallet operations, giving users instant startup speeds.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer block -->
+    <div class="footer">
+      <p>Hardened with care by Antigravity • Pairs with <a href="./walkthrough.md">Verification Walkthrough</a></p>
+    </div>
+
+  </div>
+
+  <script>
+    // Live sandbox escaping function
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    const xssInput = document.getElementById('xss-input');
+    const escapedRaw = document.getElementById('escaped-raw');
+    const renderedOutput = document.getElementById('rendered-output');
+
+    function updateSandbox() {
+      const val = xssInput.value;
+      const escaped = escapeHTML(val);
+      escapedRaw.textContent = escaped;
+      
+      // Attempting to render the unsafe input inside a standard div shows how browsers evaluate it
+      // By rendering only the ESCAPED text, tags render safely as pure textual characters without execution!
+      renderedOutput.textContent = escaped;
+      renderedOutput.className = "output-render output-safe";
+    }
+
+    xssInput.addEventListener('input', updateSandbox);
+    updateSandbox(); // Run initially
+  </script>
+</body>
+</html>
