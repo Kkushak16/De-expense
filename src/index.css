@@ -624,7 +624,8 @@ select option {
 .bottom-nav-glow {
   position: absolute;
   top: -8px;
-  width: 44px;
+  left: -12px;
+  right: -12px;
   height: 44px;
   border-radius: 14px;
   background: rgba(0, 113, 227, 0.08);
