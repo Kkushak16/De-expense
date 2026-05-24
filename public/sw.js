@@ -5,7 +5,8 @@ const ASSETS_TO_CACHE = [
   '/manifest.json',
   '/favicon.svg',
   '/logo.png',
-  '/favicon.ico'
+  '/favicon.ico',
+  '/maskable-icon.svg'
 ];
 
 // Install Event: Cache critical shell assets
