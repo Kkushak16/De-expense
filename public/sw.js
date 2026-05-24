@@ -1,4 +1,4 @@
-const CACHE_NAME = 'de-expense-cache-v7';
+const CACHE_NAME = 'de-expense-cache-v8';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -6,7 +6,10 @@ const ASSETS_TO_CACHE = [
   '/favicon.svg',
   '/logo.png',
   '/favicon.ico',
-  '/maskable-icon.svg'
+  '/logo-192.png',
+  '/logo-512.png',
+  '/maskable-192.png',
+  '/maskable-512.png'
 ];
 
 // Install Event: Cache critical shell assets
