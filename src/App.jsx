@@ -69,6 +69,15 @@ function App() {
 
   const [completedReportToShow, setCompletedReportToShow] = useState(null);
 
+  const [notifiedReminders, setNotifiedReminders] = useState(() => {
+    const saved = localStorage.getItem('wallet_notified_reminders');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('wallet_notified_reminders', JSON.stringify(notifiedReminders));
+  }, [notifiedReminders]);
+
   const [scheduledAdditions, setScheduledAdditions] = useState(() => {
     const saved = localStorage.getItem('wallet_scheduled_additions');
     return saved ? JSON.parse(saved) : [];
@@ -90,6 +99,85 @@ function App() {
   useEffect(() => {
     localStorage.setItem('wallet_viewed_reports', JSON.stringify(viewedReports));
   }, [viewedReports]);
+
+  // Request Storage Persist & Notification permissions
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          navigator.serviceWorker.ready.then((reg) => {
+            reg.showNotification("De-expense Secured", {
+              body: "Capital auto-topups and payment reminders are now active.",
+              icon: "/logo.png",
+              badge: "/logo.png"
+            });
+          }).catch(() => {
+            new Notification("De-expense Secured", {
+              body: "Capital auto-topups and payment reminders are now active.",
+              icon: "/logo.png"
+            });
+          });
+        }
+      });
+    }
+
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persisted().then((persisted) => {
+        if (!persisted) {
+          navigator.storage.persist().then((granted) => {
+            if (granted) console.log("Storage persistence granted.");
+          });
+        }
+      });
+    }
+  }, []);
+
+  // Splitwise Owe reminder scheduler checks
+  useEffect(() => {
+    if (!userName) return;
+
+    const checkSplitwiseReminders = () => {
+      const savedReminders = localStorage.getItem('wallet_splitwise_you_owe_reminders');
+      if (!savedReminders) return;
+
+      const oweReminders = JSON.parse(savedReminders);
+      const now = new Date();
+
+      oweReminders.forEach((rem) => {
+        if (notifiedReminders.includes(rem.id)) return;
+
+        const dueDate = new Date(rem.dueDate);
+        const timeDiff = dueDate.getTime() - now.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+        if (daysDiff <= 1) {
+          const bodyText = `Payment Reminder: You owe ${rem.name} ₹${rem.amount}. Due Date: ${new Date(rem.dueDate).toLocaleDateString('en-IN')}`;
+          
+          if ('Notification' in window && Notification.permission === 'granted') {
+            navigator.serviceWorker.ready.then((reg) => {
+              reg.showNotification("Splitwise Debt Due", {
+                body: bodyText,
+                icon: "/logo.png",
+                badge: "/logo.png",
+                vibrate: [200, 100, 200]
+              });
+            }).catch(() => {
+              new Notification("Splitwise Debt Due", {
+                body: bodyText,
+                icon: "/logo.png"
+              });
+            });
+
+            setNotifiedReminders((prev) => [...prev, rem.id]);
+          }
+        }
+      });
+    };
+
+    checkSplitwiseReminders();
+    const interval = setInterval(checkSplitwiseReminders, 60000);
+    return () => clearInterval(interval);
+  }, [userName, notifiedReminders]);
 
   // Check if a billing cycle or billing year was recently completed but not yet viewed by the user.
   useEffect(() => {
@@ -196,6 +284,24 @@ function App() {
             amount: item.amount,
             date: lastApplied.toISOString(),
             label: `Auto-Addition: ₹${item.amount} (${item.interval === 'month' ? 'Monthly' : `Every ${item.days} days`})`
+          });
+        }
+
+        // Trigger auto-addition push notification
+        if ('Notification' in window && Notification.permission === 'granted') {
+          const bodyText = `Auto-Addition processed: ₹${totalAdd} added to your balance (${item.interval === 'month' ? 'Monthly Schedule' : `Every ${item.days} Days`})`;
+          navigator.serviceWorker.ready.then((reg) => {
+            reg.showNotification("Capital Top-up Success", {
+              body: bodyText,
+              icon: "/logo.png",
+              badge: "/logo.png",
+              vibrate: [200, 100, 200]
+            });
+          }).catch(() => {
+            new Notification("Capital Top-up Success", {
+              body: bodyText,
+              icon: "/logo.png"
+            });
           });
         }
       }

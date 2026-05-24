@@ -1,4 +1,4 @@
-const CACHE_NAME = 'de-expense-cache-v5';
+const CACHE_NAME = 'de-expense-cache-v6';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -99,6 +99,23 @@ self.addEventListener('fetch', (event) => {
           // Offline fallback for static requests (return index.html or empty)
           return caches.match('/index.html') || caches.match('/');
         });
+    })
+  );
+});
+
+// Notification Click Event: Open/Focus app window on click
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow('/');
+      }
     })
   );
 });
