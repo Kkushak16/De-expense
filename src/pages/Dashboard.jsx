@@ -207,7 +207,6 @@ const Dashboard = ({
           <button 
             onClick={confirmResetData} 
             title="Reset data"
-            className="hidden-mobile"
             style={{ 
               background: 'rgba(255, 59, 48, 0.08)', 
               color: 'var(--danger)', 
