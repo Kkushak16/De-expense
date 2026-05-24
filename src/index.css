@@ -651,8 +651,8 @@ select option {
   }
 
   /* Header Cleanliness: Hide page redirection buttons on mobile */
-  header .flex.items-center.gap-3 button:nth-child(1),
-  header .flex.items-center.gap-3 button:nth-child(2) {
+  header .flex.items-center.gap-3 > button:nth-child(1),
+  header .flex.items-center.gap-3 > button:nth-child(2) {
     display: none !important;
   }
 
