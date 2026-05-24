@@ -686,6 +686,15 @@ select option {
   .main-grid {
     gap: 20px !important;
   }
+
+  .hidden-mobile {
+    display: none !important;
+  }
+
+  .add-money-button {
+    padding: 10px !important;
+    border-radius: 50% !important;
+  }
 }
 
 /* Custom PWA Animations */

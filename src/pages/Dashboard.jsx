@@ -187,7 +187,7 @@ const Dashboard = ({
           {/* + Add money Button */}
           <button 
             onClick={() => setShowAddBalance(!showAddBalance)} 
-            className="text-xs font-bold px-4 py-2.5 rounded-xl border transition-all flex items-center gap-1.5" 
+            className="text-xs font-bold px-4 py-2.5 rounded-xl border transition-all flex items-center gap-1.5 add-money-button" 
             style={{ 
               background: 'rgba(0, 113, 227, 0.1)', 
               color: 'var(--primary)',
@@ -199,13 +199,15 @@ const Dashboard = ({
             onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0, 113, 227, 0.15)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(0, 113, 227, 0.1)'; }}
           >
-            <Plus size={14} /> Add money
+            <Plus size={14} />
+            <span className="hidden-mobile">Add money</span>
           </button>
 
           {/* Reset button with circular format */}
           <button 
             onClick={confirmResetData} 
             title="Reset data"
+            className="hidden-mobile"
             style={{ 
               background: 'rgba(255, 59, 48, 0.08)', 
               color: 'var(--danger)', 
