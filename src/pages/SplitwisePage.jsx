@@ -11,11 +11,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const DEFAULT_GROUPS = [
-  { id: 'g1', name: 'Tokyo Trip 2024', friends: ['Kenji Sato', 'Elena Vance', 'Rahul'], icon: 'plane' },
-  { id: 'g2', name: 'Skyline Loft', friends: ['Ankit', 'Karan'], icon: 'home' },
-  { id: 'g3', name: 'Noir Dining Club', friends: ['Priya', 'Siddharth', 'Riya'], icon: 'utensils' }
-];
+const DEFAULT_GROUPS = [];
 
 const playSuccessSound = () => {
   try {
@@ -59,23 +55,12 @@ const SplitwisePage = ({ formatCurrency, theme, toggleTheme }) => {
   const [groups, setGroups] = useState(() => {
     const savedGroups = localStorage.getItem('wallet_splitwise_groups');
     if (savedGroups) return JSON.parse(savedGroups);
-
-    // Fallback migration: check if legacy friends exists
-    const savedFriends = localStorage.getItem('wallet_splitwise_friends');
-    if (savedFriends) {
-      const friendsList = JSON.parse(savedFriends);
-      return [
-        { id: 'g1', name: 'Tokyo Trip 2024', friends: friendsList, icon: 'plane' },
-        { id: 'g2', name: 'Skyline Loft', friends: ['Ankit', 'Karan'], icon: 'home' },
-        { id: 'g3', name: 'Noir Dining Club', friends: ['Priya', 'Siddharth', 'Riya'], icon: 'utensils' }
-      ];
-    }
-    return DEFAULT_GROUPS;
+    return [];
   });
 
   const [activeGroupId, setActiveGroupId] = useState(() => {
     const saved = localStorage.getItem('wallet_splitwise_active_group_id');
-    return saved || 'g1';
+    return saved || '';
   });
 
   const [bills, setBills] = useState(() => {
@@ -823,12 +808,19 @@ const SplitwisePage = ({ formatCurrency, theme, toggleTheme }) => {
             marginBottom: '40px' 
           }}
         >
-          {groups.map(group => {
-            const isSelected = activeGroupId === group.id;
-            const balanceVal = getGroupBalance(group.id);
-            const isOwed = balanceVal >= 0;
+          {groups.length === 0 ? (
+            <div className="col-span-full apple-card flex flex-col items-center justify-center text-center py-10" style={{ background: 'var(--list-item-bg)', borderColor: 'var(--border)', minHeight: '180px' }}>
+              <Users size={32} className="text-slate-500 mb-3 opacity-60" />
+              <h3 className="text-sm font-bold m-0 mb-1" style={{ color: 'var(--text-main)' }}>No Groups Yet</h3>
+              <p className="text-xs text-slate-500 max-w-xs m-0">Create your first friends group circle above to start splitting expenses offline.</p>
+            </div>
+          ) : (
+            groups.map(group => {
+              const isSelected = activeGroupId === group.id;
+              const balanceVal = getGroupBalance(group.id);
+              const isOwed = balanceVal >= 0;
 
-            return (
+              return (
               <div 
                 key={group.id}
                 onClick={() => setActiveGroupId(group.id)}
@@ -936,7 +928,8 @@ const SplitwisePage = ({ formatCurrency, theme, toggleTheme }) => {
                 )}
               </div>
             );
-          })}
+          })
+          )}
         </section>
 
         {/* 6. Form & Live Breakdown split-screen side-by-side Row */}
