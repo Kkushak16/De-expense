@@ -1,0 +1,8 @@
+{
+  "appId": "com.deexpense.app",
+  "appName": "De-expense",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
