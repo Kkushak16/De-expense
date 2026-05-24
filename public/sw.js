@@ -1,4 +1,4 @@
-const CACHE_NAME = 'de-expense-cache-v8';
+const CACHE_NAME = 'de-expense-cache-v9';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -62,7 +62,19 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => {
           // If offline, serve the cached index.html (the SPA router shell)
-          return caches.match('/index.html') || caches.match('/');
+          return caches.match('/index.html')
+            .then((response) => {
+              if (response) return response;
+              return caches.match('/');
+            })
+            .then((response) => {
+              if (response) return response;
+              // Fallback to a custom inline HTML offline page to prevent browser ERR_FAILED
+              return new Response(
+                '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>De-expense Offline</title><style>body{background-color:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;padding:20px;box-sizing:border-box}.card{background:#111;border:1px solid #222;padding:30px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.5);max-width:400px}h1{font-size:24px;font-weight:800;margin:0 0 10px 0;letter-spacing:-0.02em}p{font-size:13px;color:#888;line-height:1.6;margin:0}</style></head><body><div class="card"><h1>De-expense Offline</h1><p>Please establish an active internet connection to load the strategic wealth tracker.</p></div></body></html>',
+                { headers: { 'Content-Type': 'text/html' } }
+              );
+            });
         })
     );
     return;
@@ -101,8 +113,8 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // Offline fallback for static requests (return index.html or empty)
-          return caches.match('/index.html') || caches.match('/');
+          // Offline fallback for static requests: return a proper 404 response to avoid syntax errors
+          return new Response('Asset not cached offline', { status: 404 });
         });
     })
   );
