@@ -78,25 +78,49 @@ const Footer = () => {
             <span>✓ Offline App Active & Secured</span>
           </div>
         ) : (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleInstallClick}
-            className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl border w-full text-xs font-extrabold transition-all"
-            style={{
-              background: 'linear-gradient(135deg, var(--primary), #0051a8)',
-              borderColor: 'rgba(0, 113, 227, 0.3)',
-              color: 'white',
-              boxShadow: '0 4px 16px rgba(0, 113, 227, 0.15)',
-              cursor: 'pointer'
-            }}
-          >
-            <Smartphone size={15} />
-            <span>Install Web App (Offline Mode)</span>
-            <Download size={14} className="animate-bounce" style={{ animationDuration: '2s' }} />
-          </motion.button>
+          <div className="flex flex-col gap-2.5 w-full">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleInstallClick}
+              className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl border w-full text-xs font-extrabold transition-all"
+              style={{
+                background: 'linear-gradient(135deg, var(--primary), #0051a8)',
+                borderColor: 'rgba(0, 113, 227, 0.3)',
+                color: 'white',
+                boxShadow: '0 4px 16px rgba(0, 113, 227, 0.15)',
+                cursor: 'pointer'
+              }}
+            >
+              <Smartphone size={15} />
+              <span>Install Web App (Offline Mode)</span>
+              <Download size={14} className="animate-bounce" style={{ animationDuration: '2s' }} />
+            </motion.button>
+
+            <motion.a
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              href="/de-expense.apk"
+              download="de-expense.apk"
+              className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl border w-full text-xs font-extrabold transition-all"
+              style={{
+                background: 'var(--pill-bg)',
+                borderColor: 'var(--border)',
+                color: 'var(--text-main)',
+                boxShadow: 'var(--shadow)',
+                cursor: 'pointer',
+                textDecoration: 'none'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--pill-hover-bg)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--pill-bg)'; }}
+            >
+              <Smartphone size={15} style={{ color: 'var(--primary)' }} />
+              <span>Download Android App (APK)</span>
+              <Download size={14} style={{ color: 'var(--text-muted)' }} />
+            </motion.a>
+          </div>
         )}
-        <p className="text-muted text-center leading-relaxed" style={{ fontSize: '10px', maxWidth: '280px', width: '100%' }}>
+        <p className="text-muted text-center leading-relaxed" style={{ fontSize: '10px', maxWidth: '300px', width: '100%' }}>
           {isStandalone 
             ? "Running directly on your device. Works completely offline with cached assets." 
             : "Install as a native application for offline ledger tracking and swift launch."}
