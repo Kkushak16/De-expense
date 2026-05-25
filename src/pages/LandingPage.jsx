@@ -135,22 +135,6 @@ const LandingPage = () => {
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <button 
-            onClick={handleSignIn}
-            className="text-xs font-bold px-4 py-2 rounded-lg border transition-all flex items-center justify-center"
-            style={{
-              background: 'transparent',
-              borderColor: 'rgba(255,255,255,0.15)',
-              color: '#ffffff',
-              cursor: 'pointer',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em'
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-          >
-            Sign In
-          </button>
           <div 
             style={{ 
               width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)',
@@ -167,7 +151,7 @@ const LandingPage = () => {
       {/* Main Container */}
       <main style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         
-        {/* Dynamic Center Hero Logo matching mockup */}
+        {/* Actual brand vector Logo at the center matching mockup and dashboard */}
         <div style={{
           width: '130px',
           height: '130px',
@@ -181,31 +165,7 @@ const LandingPage = () => {
           boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 255, 255, 0.03)',
           marginBottom: '36px'
         }}>
-          <div style={{
-            fontFamily: "'SF Pro Display', -apple-system, sans-serif",
-            fontSize: '52px',
-            fontWeight: '800',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'baseline',
-            letterSpacing: '-2px',
-            userSelect: 'none'
-          }}>
-            <span>D</span>
-            <span style={{
-              background: '#ffffff',
-              color: '#000000',
-              fontSize: '15px',
-              padding: '1px 6px',
-              borderRadius: '9px',
-              fontWeight: '900',
-              marginLeft: '2px',
-              marginRight: '2px',
-              transform: 'translateY(-18px)',
-              letterSpacing: '-0.5px'
-            }}>exp</span>
-            <span style={{ fontSize: '38px', fontWeight: '500' }}>e</span>
-          </div>
+          <Logo size={80} />
         </div>
 
         {/* Hero Copy */}
@@ -252,7 +212,7 @@ const LandingPage = () => {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
             gap: '24px'
           }}>
             {/* Card 1: Pro Tracker */}
@@ -349,6 +309,39 @@ const LandingPage = () => {
               <div className="flex justify-between items-center mt-6">
                 <span className="text-[9px] font-extrabold tracking-wider text-danger uppercase" style={{ color: 'var(--danger)' }}>
                   PREMIUM
+                </span>
+                <ExternalLink size={14} className="text-muted" />
+              </div>
+            </div>
+
+            {/* Card 4: Microgrid Simulator */}
+            <div 
+              onClick={() => window.open('https://heti-one.vercel.app/', '_blank')}
+              className="apple-card hover:scale-[1.01] transition-all cursor-pointer flex flex-col justify-between"
+              style={{
+                background: 'rgba(255,255,255,0.01)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderLeft: '4px solid #34c759',
+                padding: '24px',
+                borderRadius: '16px',
+                minHeight: '160px',
+                boxShadow: 'none'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.01)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}
+            >
+              <div>
+                <span className="block mb-3" style={{ color: '#34c759' }}>
+                  <Globe size={20} />
+                </span>
+                <span className="font-bold text-base text-white block mb-1">Microgrid Simulator</span>
+                <span className="text-xs text-muted leading-relaxed block" style={{ opacity: 0.75 }}>
+                  High-fidelity simulation and modeling tool for microgrid control architectures and energy optimization.
+                </span>
+              </div>
+              <div className="flex justify-between items-center mt-6">
+                <span className="text-[9px] font-extrabold tracking-wider uppercase" style={{ color: '#34c759' }}>
+                  ACTIVE
                 </span>
                 <ExternalLink size={14} className="text-muted" />
               </div>
