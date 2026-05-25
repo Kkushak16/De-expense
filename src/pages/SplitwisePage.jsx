@@ -1305,8 +1305,8 @@ const SplitwisePage = ({ formatCurrency, theme, toggleTheme }) => {
                   }}
                 >
                   <div className="flex justify-between items-start pr-8">
-                    <div>
-                      <span className="text-sm font-extrabold block" style={{ color: 'var(--text-main)' }}>{bill.description}</span>
+                    <div style={{ minWidth: 0, flex: 1, marginRight: '16px' }}>
+                      <span className="text-sm font-extrabold block" style={{ color: 'var(--text-main)', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{bill.description}</span>
                       <span className="text-[10px] text-slate-500 font-semibold mt-0.5 block">
                         Paid by {bill.paidBy} • {bill.shares ? 'Manually Split' : `Split Equally among ${bill.participants.join(', ')}`}
                       </span>
@@ -1652,9 +1652,9 @@ const SplitwisePage = ({ formatCurrency, theme, toggleTheme }) => {
                             borderColor: isOverdue ? 'rgba(255, 59, 48, 0.25)' : 'var(--border)'
                           }}
                         >
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-slate-100">{rem.name}</span>
+                          <div className="flex flex-col gap-1" style={{ minWidth: 0, flex: 1, marginRight: '16px' }}>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs font-bold text-slate-100" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{rem.name}</span>
                               {isOverdue && (
                                 <span className="text-[8px] font-extrabold text-rose-400 bg-rose-950/50 px-1.5 py-0.5 rounded border border-rose-900/50 uppercase">
                                   OVERDUE

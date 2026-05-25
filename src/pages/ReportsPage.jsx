@@ -35,7 +35,7 @@ const ReportsPage = ({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('monthly'); // 'monthly' | 'yearly'
 
-  const handleExportCSV = (periodData) => {
+  const handleExportCSV = async (periodData) => {
     if (!periodData || periodData.expenses.length === 0) return;
     
     const headers = ["Date", "Description", "Category", "Sub-Category", "Amount (INR)", "Status"];
@@ -53,17 +53,253 @@ const ReportsPage = ({
       ...rows.map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))
     ].join("\r\n");
     
+    const labelVal = periodData.label || `Year_${periodData.year}`;
+    const safeLabel = labelVal.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+    const filename = `de_expense_report_${safeLabel}.csv`;
+
+    const file = new File([csvContent], filename, { type: 'text/csv' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'De-expense Report',
+          text: `Financial report for ${periodData.label || periodData.year}`
+        });
+        return;
+      } catch (err) {
+        console.log('Share failed, falling back to download:', err);
+      }
+    }
+    
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    
-    const labelVal = periodData.label || `Year_${periodData.year}`;
-    const safeLabel = labelVal.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
-    link.setAttribute("download", `de_expense_report_${safeLabel}.csv`);
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleExportPDF = async (periodData) => {
+    if (!periodData || periodData.expenses.length === 0) return;
+
+    const labelVal = periodData.label || `Year_${periodData.year}`;
+    const safeLabel = labelVal.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+    const filename = `de_expense_report_${safeLabel}.html`;
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>De-expense Report - ${periodData.label || 'Billing Year ' + periodData.year}</title>
+  <style>
+    :root {
+      --primary: #0071e3;
+      --danger: #ff3b30;
+      --success: #34c759;
+      --text: #1d1d1f;
+      --text-muted: #86868b;
+      --bg: #f5f5f7;
+      --card-bg: #ffffff;
+      --border: #d2d2d7;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background-color: var(--bg);
+      margin: 0;
+      padding: 40px 20px;
+      line-height: 1.4;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .logo {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--primary);
+      margin: 0 0 8px 0;
+    }
+    .title {
+      font-size: 16px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+    .period-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .period-value {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .total-label {
+      text-align: right;
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .total-value {
+      text-align: right;
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--danger);
+      margin-top: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .amount {
+      font-weight: 700;
+      color: var(--danger);
+      text-align: right;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: var(--bg);
+      color: var(--text-muted);
+    }
+    .badge-approved {
+      background: rgba(52, 199, 89, 0.1);
+      color: var(--success);
+    }
+    @media print {
+      body {
+        background-color: #ffffff;
+        padding: 0;
+      }
+      .card {
+        box-shadow: none;
+        border: none;
+        padding: 20px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">De-expense</div>
+      <div class="title">Strategic Financial Ledger</div>
+    </div>
+    
+    <div class="card">
+      <div class="summary-grid">
+        <div>
+          <div class="period-label">Report Period</div>
+          <div class="period-value">${periodData.label || 'Billing Year ' + periodData.year}</div>
+        </div>
+        <div>
+          <div class="total-label">Total Outgoings</div>
+          <div class="total-value">-${formatCurrency(periodData.totalSpent)}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card" style="padding: 20px 0;">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Sub-Category</th>
+            <th style="text-align: right;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${periodData.expenses.map(e => `
+            <tr>
+              <td>${new Date(e.date).toLocaleDateString('en-IN')}</td>
+              <td>
+                <div style="font-weight: 600;">${e.description}</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                  <span class="badge ${e.amount % 2 === 0 ? 'badge-approved' : ''}">
+                    ${e.amount % 2 === 0 ? 'Approved' : 'Pending'}
+                  </span>
+                </div>
+              </td>
+              <td>${e.category}</td>
+              <td>${e.subCategory || 'General'}</td>
+              <td class="amount">-${formatCurrency(e.amount)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    const file = new File([htmlContent], filename, { type: 'text/html' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'De-expense Financial Report',
+          text: `Financial report for ${periodData.label || periodData.year}`
+        });
+        return;
+      } catch (err) {
+        console.log('Share failed, falling back to print:', err);
+      }
+    }
+
+    window.print();
   };
   
   // Calculate periods dynamically based on current startOfMonthDay
@@ -370,7 +606,7 @@ const ReportsPage = ({
                               <FileText size={14} /> Export Excel
                             </button>
                             <button
-                              onClick={() => window.print()}
+                              onClick={() => handleExportPDF(currentPeriod)}
                               style={{
                                 background: 'var(--pill-bg)',
                                 border: '1px solid var(--border)',
@@ -558,7 +794,7 @@ const ReportsPage = ({
                               <FileText size={14} /> Export Excel
                             </button>
                             <button
-                              onClick={() => window.print()}
+                              onClick={() => handleExportPDF(currentYear)}
                               style={{
                                 background: 'var(--pill-bg)',
                                 border: '1px solid var(--border)',

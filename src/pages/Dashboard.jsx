@@ -6,6 +6,7 @@ import ExpenseForm from '../components/ExpenseForm';
 import ExpenseChart from '../components/ExpenseChart';
 import SettingsMenu from '../components/SettingsMenu';
 import Logo from '../components/Logo';
+import Footer from '../components/Footer';
 import { 
   Plus, 
   Wallet, 
@@ -466,8 +467,8 @@ const Dashboard = ({
                                 className="flex items-center justify-between p-3 rounded-xl border border-border hover:bg-pill-hover-bg transition-colors"
                                 style={{ background: 'var(--list-item-bg)' }}
                               >
-                                <div>
-                                  <span className="text-sm font-bold block" style={{ color: 'var(--text-main)' }}>{expense.description}</span>
+                                <div style={{ minWidth: 0, flex: 1, marginRight: '16px' }}>
+                                  <span className="text-sm font-bold block" style={{ color: 'var(--text-main)', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{expense.description}</span>
                                   <span className="text-[10px] text-muted font-bold block mt-0.5">
                                     Sub-category: {expense.subCategory || 'General'} • {new Date(expense.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                                   </span>
@@ -631,6 +632,7 @@ const Dashboard = ({
         )}
       </AnimatePresence>
 
+      <Footer />
     </div>
   );
 };

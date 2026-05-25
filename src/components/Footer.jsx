@@ -60,12 +60,14 @@ const Footer = () => {
     }
   };
 
+  const isInstalled = isStandalone || !!window.Capacitor;
+
   return (
     <footer className="w-full mt-10 mb-6 flex flex-col items-center gap-5 pb-8 select-none">
       
       {/* 1. Dynamic PWA Download/Status Button */}
       <div className="flex flex-col items-center gap-2.5 w-full" style={{ maxWidth: '400px', width: '100%' }}>
-        {isStandalone ? (
+        {isInstalled ? (
           <div 
             className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border w-full text-xs font-bold transition-all"
             style={{
@@ -121,7 +123,7 @@ const Footer = () => {
           </div>
         )}
         <p className="text-muted text-center leading-relaxed" style={{ fontSize: '10px', maxWidth: '300px', width: '100%' }}>
-          {isStandalone 
+          {isInstalled 
             ? "Running directly on your device. Works completely offline with cached assets." 
             : "Install as a native application for offline ledger tracking and swift launch."}
         </p>

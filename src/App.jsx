@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import ExplorerPage from './pages/ExplorerPage';
 import BalanceHistoryPage from './pages/BalanceHistoryPage';
@@ -450,7 +451,26 @@ function App() {
     return sortedDays.length > 0 ? { date: sortedDays[0][0], amount: sortedDays[0][1] } : null;
   }, [expenses]);
 
-  if (!userName) {
+  const handleRemovePrimaryCategory = (category) => {
+    const categoryExpenses = expenses.filter(e => e.category === category);
+    const refundAmount = categoryExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+    setCategoryMap(prev => {
+      const copy = { ...prev };
+      delete copy[category];
+      return copy;
+    });
+
+    setExpenses(prev => prev.filter(e => e.category !== category));
+
+    if (refundAmount > 0) {
+      setBalance(prev => prev + refundAmount);
+    }
+  };
+
+  const isLandingPath = window.location.pathname === '/';
+
+  if (!userName && !isLandingPath) {
     return (
       <div className="flex flex-col items-center justify-center" style={{ minHeight: '90vh' }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ width: '100%', maxWidth: '400px' }}>
@@ -465,7 +485,7 @@ function App() {
     );
   }
 
-  if (balance === null) {
+  if (balance === null && !isLandingPath) {
     return (
       <div className="flex flex-col items-center justify-center" style={{ minHeight: '90vh' }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ width: '100%', maxWidth: '400px' }}>
@@ -483,7 +503,8 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/dashboard" element={
           <Dashboard 
             userName={userName}
             setUserName={setUserName}
@@ -515,6 +536,7 @@ function App() {
             onDeleteExpense={handleDeleteExpense}
             onAddSubCategory={handleAddSubCategory}
             onRemoveSubCategory={handleRemoveSubCategory}
+            onRemovePrimaryCategory={handleRemovePrimaryCategory}
             theme={theme}
             toggleTheme={toggleTheme}
           />
@@ -545,8 +567,6 @@ function App() {
           />
         } />
       </Routes>
-      
-      <Footer />
       
       <BottomNavBar />
 

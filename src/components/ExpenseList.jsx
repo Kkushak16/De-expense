@@ -25,9 +25,9 @@ const ExpenseList = ({ expenses, onDeleteExpense, formatCurrency }) => {
               className="flex items-center justify-between p-4 rounded-2xl"
               style={{ background: 'var(--list-item-bg)', border: '1px solid var(--border)' }}
             >
-              <div className="flex flex-col">
-                <span className="font-bold text-sm tracking-tight">{expense.description}</span>
-                <div className="flex items-center gap-1 text-[10px] text-muted font-bold uppercase tracking-wider mt-1">
+              <div className="flex flex-col" style={{ minWidth: 0, flex: 1, marginRight: '16px' }}>
+                <span className="font-bold text-sm tracking-tight" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{expense.description}</span>
+                <div className="flex items-center gap-1 text-[10px] text-muted font-bold uppercase tracking-wider mt-1 flex-wrap">
                   <span>{expense.category}</span>
                   <ChevronRight size={10} />
                   <span className="text-primary">{expense.subCategory}</span>

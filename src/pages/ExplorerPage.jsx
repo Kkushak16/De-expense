@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, LayoutGrid, Plus, X, Sun, Moon } from 'lucide-react';
+import { ChevronLeft, LayoutGrid, Plus, X, Sun, Moon, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExpenseList from '../components/ExpenseList';
 
@@ -11,6 +11,7 @@ const ExplorerPage = ({
   onDeleteExpense, 
   onAddSubCategory, 
   onRemoveSubCategory,
+  onRemovePrimaryCategory,
   theme,
   toggleTheme
 }) => {
@@ -21,8 +22,21 @@ const ExplorerPage = ({
   const [isAddingSub, setIsAddingSub] = useState(false);
   const [newSubName, setNewSubName] = useState('');
   
-  // Custom modal state for subcategory deletion
+  // Custom modal state for subcategory and primary category deletion
   const [subCategoryToDelete, setSubCategoryToDelete] = useState(null);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+
+  const handleDeletePrimary = (category) => {
+    onRemovePrimaryCategory(category);
+    const remainingCats = Object.keys(categoryMap).filter(c => c !== category);
+    if (remainingCats.length > 0) {
+      setSelectedCategory(remainingCats[0]);
+    } else {
+      setSelectedCategory(null);
+    }
+    setSelectedSubCategory(null);
+    setCategoryToDelete(null);
+  };
 
   const filteredExpenses = expenses.filter(e => {
     if (selectedSubCategory) return e.category === selectedCategory && e.subCategory === selectedSubCategory;
@@ -95,13 +109,14 @@ const ExplorerPage = ({
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => { setSelectedCategory(cat); setSelectedSubCategory(null); setIsAddingSub(false); }}
-                className="flex-1 min-w-[150px] p-6 rounded-2xl text-lg font-bold border transition-all"
+                className="flex-1 p-6 rounded-2xl text-lg font-bold border transition-all"
                 style={{ 
                   background: selectedCategory === cat ? 'var(--primary)' : 'var(--pill-bg)',
                   borderColor: selectedCategory === cat ? 'var(--primary)' : 'var(--border)',
                   color: selectedCategory === cat ? '#ffffff' : 'var(--text-main)',
                   opacity: selectedCategory === cat ? 1 : 0.75,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  minWidth: '150px'
                 }}
                 onMouseEnter={(e) => {
                   if (selectedCategory !== cat) {
@@ -136,6 +151,30 @@ const ExplorerPage = ({
                 <div className="flex flex-col gap-6 mb-8">
                   <div className="flex items-center justify-between">
                     <h2 className="m-0">{selectedCategory} Spends</h2>
+                    {selectedCategory && (
+                      <button 
+                        onClick={() => setCategoryToDelete(selectedCategory)}
+                        style={{
+                          background: 'rgba(255, 59, 48, 0.08)',
+                          color: 'var(--danger)',
+                          border: '1px solid rgba(255, 59, 48, 0.15)',
+                          padding: '8px 14px',
+                          borderRadius: '10px',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          transform: 'none',
+                          opacity: 1
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 59, 48, 0.15)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 59, 48, 0.08)'; }}
+                      >
+                        <Trash2 size={13} /> Delete Category
+                      </button>
+                    )}
                   </div>
                   
                   {/* Sub-category pills list */}
@@ -331,6 +370,74 @@ const ExplorerPage = ({
                   }}
                 >
                   Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Premium Primary Category Deletion Confirmation Modal */}
+      <AnimatePresence>
+        {categoryToDelete && (
+          <div className="modal-overlay">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="apple-card modal-content-card"
+              style={{
+                border: '1px solid var(--danger)',
+                background: 'radial-gradient(circle at top left, rgba(255, 59, 48, 0.03), var(--card-bg))'
+              }}
+            >
+              <button 
+                onClick={() => setCategoryToDelete(null)}
+                className="modal-close-btn"
+              >
+                <X size={20} />
+              </button>
+              <h2 className="mb-4 m-0 pr-8" style={{ marginTop: 0, color: 'var(--text-main)' }}>Delete Primary Category?</h2>
+              <p className="text-muted text-sm mb-6 leading-relaxed">
+                Are you sure you want to permanently remove the primary category <strong>"{categoryToDelete}"</strong>?
+              </p>
+              
+              <div className="flex gap-3 p-3.5 rounded-xl border border-border mb-6" style={{ background: 'rgba(255, 59, 48, 0.05)', borderColor: 'rgba(255, 59, 48, 0.15)' }}>
+                <span className="text-xs text-rose-400 font-bold leading-relaxed">
+                  ⚠️ <strong>Warning</strong>: This will permanently delete all transaction records under this category, and the total spent amount will be refunded back to your available balance. This cannot be undone.
+                </span>
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <button 
+                  onClick={() => setCategoryToDelete(null)} 
+                  style={{ 
+                    background: 'var(--pill-bg)', 
+                    color: 'var(--text-main)', 
+                    borderRadius: '12px',
+                    padding: '10px 20px',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    border: '1px solid var(--border)'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => handleDeletePrimary(categoryToDelete)} 
+                  style={{ 
+                    background: 'var(--danger)', 
+                    color: 'white', 
+                    borderRadius: '12px',
+                    padding: '10px 20px',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    border: 'none'
+                  }}
+                >
+                  Confirm Delete
                 </button>
               </div>
             </motion.div>
